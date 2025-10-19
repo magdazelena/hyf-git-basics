@@ -56,7 +56,7 @@ body {
     font-size: 1.8rem;
     margin-bottom: 1rem;
     color: pink;
-    border-bottom: 2px solid #3498db;
+    border-bottom: 2px solid purple;
     padding-bottom: 0.5rem;
 }
 
@@ -113,7 +113,7 @@ body {
 
 .recipe-link {
     display: inline-block;
-    background-color: #3498db;
+    background-color: purple;
     color: white;
     text-decoration: none;
     padding: 0.75rem 1.5rem;
@@ -132,7 +132,7 @@ body {
 }
 
 .breadcrumb-link {
-    color: #3498db;
+    color: purple;
     text-decoration: none;
 }
 
@@ -182,7 +182,7 @@ body {
 }
 
 .serving-size, .prep-time, .cook-time {
-    background-color: #3498db;
+    background-color: purple;
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 4px;
