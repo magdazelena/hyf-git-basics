@@ -556,9 +556,9 @@ Practice using `revert` to undo a commit safely, and `cherry-pick` to copy commi
 
 Use interactive rebase to squash, reorder, and clean up commits before creating a PR.
 
-### ⚠️ Important Rule
+### ⚠️ Important
 
-> Never rebase commits that have already been pushed to a shared branch!
+> Rebasing commits that have already been pushed to a shared branch will need a force push!
 
 ### 📝 Instructions
 
@@ -670,7 +670,6 @@ Use interactive rebase to squash, reorder, and clean up commits before creating 
 ### 🤔 Discussion Questions
 
 - Why is clean commit history important?
-- When should you NOT use rebase?
 - What's the difference between `squash` and `fixup`?
 
 ---
@@ -708,31 +707,3 @@ git rebase origin/main
 ```
 
 Compare the history with what you got from merging.
-
----
-
-## 📝 Reflection Questions
-
-After completing the exercises, discuss with your partner or group:
-
-1. **Which undo command would you use if...**
-   - You committed to the wrong branch?
-   - You pushed a commit with a bug to main?
-   - You want to combine your last 5 commits into 1?
-
-2. **What's your strategy for avoiding merge conflicts?**
-
-3. **Why do teams use Pull Requests instead of pushing directly to main?**
-
-4. **What makes a commit message "good"?**
-
----
-
-## ✅ Completion Checklist
-
-- [ ] Exercise 1: Created and resolved a merge conflict
-- [ ] Exercise 2: Used stash to switch branches safely
-- [ ] Exercise 3: Understand soft vs hard reset
-- [ ] Exercise 4: Used revert and cherry-pick
-- [ ] Exercise 5: Cleaned up history with interactive rebase
-- [ ] Discussed reflection questions with partner/group

@@ -439,7 +439,7 @@ pick ghi789 Update docs
 - `reword` — Fix a commit message
 - `drop` — Remove a commit from history
 
-> ⚠️ **Warning:** Never rebase commits that have been pushed to a shared branch!
+> ⚠️ **Warning:** Rebase of commits that have been pushed to a shared branch will require a forced push!
 
 > 📝 **Exercises 3, 4, 5 in EXERCISES.md** — Practice reset, revert, cherry-pick, and rebase!
 
