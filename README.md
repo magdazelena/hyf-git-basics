@@ -9,16 +9,18 @@
 ## Table of Contents
 
 1. [Quick Recap](#-quick-recap) ⏱️ 5 min
-2. [Why Branches?](#-why-branches) ⏱️ 10 min
-3. [The 3 Types of Branches](#-the-3-types-of-branches) ⏱️ 15 min
-4. [Push, Pull & Fetch](#-push-pull--fetch) ⏱️ 10 min
-5. [Merge Conflicts](#-merge-conflicts) ⏱️ 20 min
-6. [Git Diff & Stash](#-git-diff--stash) ⏱️ 15 min
-7. [Undoing Changes](#-undoing-changes) ⏱️ 30 min
-8. [Checkout to Specific Commit](#-checkout-to-specific-commit) ⏱️ 10 min
-9. [Useful Commands](#-useful-commands) ⏱️ 10 min
-10. [Good Commit Messages](#-good-commit-messages) ⏱️ 10 min
-11. [Creating Good PRs](#-creating-good-prs) ⏱️ 10 min
+2. [Git Setup: Escape from Vim](#%EF%B8%8F-git-setup-escape-from-vim) ⏱️ 5 min
+3. [Why Branches?](#-why-branches) ⏱️ 10 min
+4. [The 3 Types of Branches](#-the-3-types-of-branches) ⏱️ 15 min
+5. [Push, Pull & Fetch](#-push-pull--fetch) ⏱️ 10 min
+6. [Merge Conflicts](#-merge-conflicts) ⏱️ 20 min
+7. [Git Diff & Stash](#-git-diff--stash) ⏱️ 15 min
+8. [Undoing Changes](#-undoing-changes) ⏱️ 30 min
+9. [Merge vs Rebase](#-merge-vs-rebase) ⏱️ 15 min
+10. [Checkout to Specific Commit](#-checkout-to-specific-commit) ⏱️ 10 min
+11. [Useful Commands](#-useful-commands) ⏱️ 10 min
+12. [Good Commit Messages](#-good-commit-messages) ⏱️ 10 min
+13. [Creating Good PRs](#-creating-good-prs) ⏱️ 10 min
 
 ---
 
@@ -33,6 +35,78 @@ Before we dive into advanced collaboration, let's refresh the basics:
 | **Branch**       | An independent line of development, like a parallel universe for your code |
 | **Remote**       | A copy of your repository hosted elsewhere (e.g., GitHub)                  |
 | **Pull Request** | A request to merge your branch into another, enabling code review          |
+
+---
+
+## ⚙️ Git Setup: Escape from Vim
+
+When Git needs you to write a message (like during `git commit`, `git merge`, or `git rebase -i`), it opens a text editor. By default, this is often **Vim** — and if you don't know Vim, you're trapped!
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                                                                 │
+│   ~                                                             │
+│   ~                                                             │
+│   ~              You are in Vim.                                │
+│   ~              You don't know how to exit.                    │
+│   ~              You live here now.                             │
+│   ~                                                             │
+│   ~                                                             │
+│   -- INSERT --                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Emergency Vim Exit
+
+If you're stuck in Vim right now:
+
+1. Press `Esc` (maybe a few times)
+2. Type `:wq` and press `Enter` (save and quit)
+3. Or type `:q!` and press `Enter` (quit without saving)
+
+### Set VS Code as Your Default Editor
+
+Let's make sure this never happens again:
+
+```bash
+# Set VS Code as the default Git editor
+git config --global core.editor "code --wait"
+```
+
+The `--wait` flag tells Git to wait until you close the VS Code tab before continuing.
+
+### Verify Your Settings
+
+```bash
+# Check your current editor setting
+git config --global core.editor
+```
+
+### Other Editor Options
+
+```bash
+# Nano (simpler terminal editor)
+git config --global core.editor "nano"
+
+# Sublime Text
+git config --global core.editor "subl -n -w"
+
+# Notepad++ (Windows)
+git config --global core.editor "'C:/Program Files/Notepad++/notepad++.exe' -multiInst -notabbar -nosession -noPlugin"
+```
+
+### GitLens in VS Code
+
+If you're using **GitLens** (highly recommended!), you get a beautiful visual interface for:
+
+- Viewing blame annotations (who wrote each line)
+- Exploring commit history
+- Managing branches visually
+- Interactive rebase with drag-and-drop
+
+Install it from VS Code Extensions: search for "GitLens"
+
+> 💡 **Pro Tip:** With VS Code as your editor, `git rebase -i` opens a nice editable file instead of the scary Vim interface!
 
 ---
 
@@ -445,7 +519,204 @@ pick ghi789 Update docs
 
 ---
 
-## 🕐 Checkout to Specific Commit
+## � Merge vs Rebase
+
+Both `merge` and `rebase` integrate changes from one branch into another — but they do it very differently, and your Git history shows it.
+
+### The Scenario
+
+You're working on `feature/login` while teammates have added commits to `main`:
+
+```
+         C ─── D           (your feature/login branch)
+        /
+A ─── B ─── E ─── F        (main branch, updated by teammates)
+```
+
+You need to get those new commits (E, F) into your feature branch. Two options:
+
+---
+
+### Option 1: Merge (`git merge main`)
+
+```bash
+git checkout feature/login
+git merge main
+```
+
+**Result:**
+
+```
+         C ─── D ─────── G     (feature/login)
+        /               /
+A ─── B ─── E ─── F ───┘       (main)
+```
+
+A new **merge commit (G)** is created that has two parents. Your history shows exactly when and how branches diverged and came back together.
+
+```mermaid
+gitGraph
+    commit id: "A"
+    commit id: "B"
+    branch feature/login
+    commit id: "C"
+    commit id: "D"
+    checkout main
+    commit id: "E"
+    commit id: "F"
+    checkout feature/login
+    merge main id: "G (merge)"
+```
+
+**History with `git log --oneline --graph`:**
+
+```
+*   G  Merge branch 'main' into feature/login
+|\
+| * F  Add validation
+| * E  Update styles
+* | D  Add login form
+* | C  Create login page
+|/
+* B  Initial setup
+* A  First commit
+```
+
+---
+
+### Option 2: Rebase (`git rebase main`)
+
+```bash
+git checkout feature/login
+git rebase main
+```
+
+**Result:**
+
+```
+                       C' ─── D'   (feature/login, rebased)
+                      /
+A ─── B ─── E ─── F ──             (main)
+```
+
+Your commits (C, D) are **replayed** on top of main, creating new commits (C', D') with new hashes. The history is linear — it looks like you started your work after F was committed.
+
+```mermaid
+gitGraph
+    commit id: "A"
+    commit id: "B"
+    commit id: "E"
+    commit id: "F"
+    commit id: "C' (rebased)"
+    commit id: "D' (rebased)"
+```
+
+**History with `git log --oneline --graph`:**
+
+```
+* D' Add login form
+* C' Create login page
+* F  Add validation
+* E  Update styles
+* B  Initial setup
+* A  First commit
+```
+
+No merge commits, clean linear history!
+
+---
+
+### Side-by-Side Comparison
+
+```
+┌─────────────────────────────────┬─────────────────────────────────┐
+│           MERGE                 │           REBASE                │
+├─────────────────────────────────┼─────────────────────────────────┤
+│                                 │                                 │
+│  *   G (merge commit)           │  * D'                           │
+│  |\                             │  * C'                           │
+│  | * F                          │  * F                            │
+│  | * E                          │  * E                            │
+│  * | D                          │  * B                            │
+│  * | C                          │  * A                            │
+│  |/                             │                                 │
+│  * B                            │                                 │
+│  * A                            │                                 │
+│                                 │                                 │
+│  "Railroad tracks"              │  "Single track"                 │
+│  Preserves true history         │  Clean, linear history          │
+│                                 │                                 │
+└─────────────────────────────────┴─────────────────────────────────┘
+```
+
+### Comparison Table
+
+| Aspect                       | Merge                      | Rebase                      |
+| ---------------------------- | -------------------------- | --------------------------- |
+| **History**                  | Non-linear, shows branches | Linear, single line         |
+| **Merge commits**            | Yes (extra commits)        | No                          |
+| **Original commit hashes**   | Preserved                  | Changed (new hashes)        |
+| **Safe for shared branches** | ✅ Yes                     | ⚠️ No (requires force push) |
+| **Conflict resolution**      | Once, at merge time        | Potentially for each commit |
+| **Preserves "true" history** | ✅ Yes                     | ❌ Rewrites history         |
+
+### When to Use Each
+
+#### Use Merge When:
+
+- ✅ Working on shared/public branches
+- ✅ You want to preserve the exact history
+- ✅ Collaborating with others on the same branch
+- ✅ Creating a pull request (merge is the default)
+
+#### Use Rebase When:
+
+- ✅ Cleaning up your local commits before pushing
+- ✅ Keeping your feature branch up-to-date with main
+- ✅ You want a clean, linear project history
+- ✅ Working alone on a feature branch
+
+### ⚠️ The Golden Rule of Rebase
+
+> **Never rebase commits that have been pushed to a shared branch that others are working on!**
+
+If you rebase and force push, you'll cause problems for anyone who has pulled those commits:
+
+```
+Your teammate has:     A ─── B ─── C ─── D
+                                        ↑ their work
+
+You rebase & push:     A ─── B ─── C' ─── D'
+                                          ↑ different commits!
+
+Your teammate:         😱 "Where did my commits go?!"
+```
+
+### Practical Workflow: The Best of Both
+
+Many teams use this approach:
+
+1. **Rebase** your feature branch onto main to get latest changes:
+
+   ```bash
+   git checkout feature/login
+   git fetch origin main
+   git rebase origin/main
+   ```
+
+2. **Merge** (via Pull Request) into main when the feature is ready
+
+This gives you:
+
+- Clean, linear history on your feature branch
+- Clear merge commits showing when features were integrated
+- Safe collaboration via pull requests
+
+> 📝 **Exercise: Bonus Challenge 3 in EXERCISES.md** — Try rebasing instead of merging!
+
+---
+
+## �🕐 Checkout to Specific Commit
 
 Want to see what your code looked like in the past?
 
